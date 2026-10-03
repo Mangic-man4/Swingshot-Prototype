@@ -36,13 +36,20 @@ public class UnrealTransformConverter : EditorWindow
 
         Vector3 unrealPosition = UnityPositionToUnreal(t.position);
 
-        EditorGUILayout.LabelField("Unreal World Position", EditorStyles.boldLabel);
-        EditorGUILayout.Vector3Field("", RoundVector(unrealPosition, 3));
+        EditorGUILayout.LabelField(
+            "Unreal World Position",
+            EditorStyles.boldLabel
+        );
+
+        EditorGUILayout.Vector3Field(
+            "",
+            RoundVector(unrealPosition, 3)
+        );
 
         if (GUILayout.Button("Copy Position"))
         {
             EditorGUIUtility.systemCopyBuffer =
-                FormatVector(unrealPosition);
+                FormatUnrealVector(unrealPosition);
         }
 
         EditorGUILayout.Space();
@@ -53,7 +60,10 @@ public class UnrealTransformConverter : EditorWindow
 
         Vector3 unrealRotation = UnityRotationToUnreal(t);
 
-        EditorGUILayout.LabelField("Unreal World Rotation", EditorStyles.boldLabel);
+        EditorGUILayout.LabelField(
+            "Unreal World Rotation",
+            EditorStyles.boldLabel
+        );
 
         EditorGUILayout.Vector3Field(
             "X Roll / Y Pitch / Z Yaw",
@@ -63,7 +73,7 @@ public class UnrealTransformConverter : EditorWindow
         if (GUILayout.Button("Copy Rotation"))
         {
             EditorGUIUtility.systemCopyBuffer =
-                FormatVector(unrealRotation);
+                FormatUnrealRotation(unrealRotation);
         }
 
         EditorGUILayout.Space();
@@ -74,23 +84,36 @@ public class UnrealTransformConverter : EditorWindow
 
         Vector3 unrealScale = UnityScaleToUnreal(t.lossyScale);
 
-        EditorGUILayout.LabelField("Unreal World Scale", EditorStyles.boldLabel);
-        EditorGUILayout.Vector3Field("", RoundVector(unrealScale, 3));
+        EditorGUILayout.LabelField(
+            "Unreal World Scale",
+            EditorStyles.boldLabel
+        );
+
+        EditorGUILayout.Vector3Field(
+            "",
+            RoundVector(unrealScale, 3)
+        );
 
         if (GUILayout.Button("Copy Scale"))
         {
             EditorGUIUtility.systemCopyBuffer =
-                FormatVector(unrealScale);
+                FormatUnrealVector(unrealScale);
         }
 
         EditorGUILayout.Space();
 
+        // -------------------------
+        // COPY ALL
+        // -------------------------
+
         if (GUILayout.Button("Copy All"))
         {
             EditorGUIUtility.systemCopyBuffer =
-                $"Location: {FormatVector(unrealPosition)}\n" +
-                $"Rotation: {FormatVector(unrealRotation)}\n" +
-                $"Scale: {FormatVector(unrealScale)}";
+                FormatUnrealTransform(
+                    unrealPosition,
+                    unrealRotation,
+                    unrealScale
+                );
         }
     }
 
@@ -123,31 +146,41 @@ public class UnrealTransformConverter : EditorWindow
 
     private static Vector3 UnityRotationToUnreal(Transform t)
     {
-        // Convert the actual world-space orientation rather than
-        // trying to rearrange Unity Euler angles directly.
-        Vector3 forward = UnityDirectionToUnreal(t.forward).normalized;
-        Vector3 right   = UnityDirectionToUnreal(t.right).normalized;
-        Vector3 up      = UnityDirectionToUnreal(t.up).normalized;
+        // Convert the actual world-space orientation instead
+        // of simply rearranging Unity Euler angles.
 
-        float pitch = Mathf.Asin(
-            Mathf.Clamp(forward.z, -1f, 1f)
-        ) * Mathf.Rad2Deg;
+        Vector3 forward =
+            UnityDirectionToUnreal(t.forward).normalized;
 
-        float yaw = Mathf.Atan2(
-            forward.y,
-            forward.x
-        ) * Mathf.Rad2Deg;
+        Vector3 right =
+            UnityDirectionToUnreal(t.right).normalized;
 
-        float cosPitch = Mathf.Cos(pitch * Mathf.Deg2Rad);
+        Vector3 up =
+            UnityDirectionToUnreal(t.up).normalized;
+
+        float pitch =
+            Mathf.Asin(
+                Mathf.Clamp(forward.z, -1f, 1f)
+            ) * Mathf.Rad2Deg;
+
+        float yaw =
+            Mathf.Atan2(
+                forward.y,
+                forward.x
+            ) * Mathf.Rad2Deg;
+
+        float cosPitch =
+            Mathf.Cos(pitch * Mathf.Deg2Rad);
 
         float roll;
 
         if (Mathf.Abs(cosPitch) > 0.0001f)
         {
-            roll = Mathf.Atan2(
-                -right.z,
-                up.z
-            ) * Mathf.Rad2Deg;
+            roll =
+                Mathf.Atan2(
+                    -right.z,
+                    up.z
+                ) * Mathf.Rad2Deg;
         }
         else
         {
@@ -155,10 +188,11 @@ public class UnrealTransformConverter : EditorWindow
             roll = 0f;
         }
 
-        // Unreal Transform panel displays:
+        // Store as:
         // X = Roll
         // Y = Pitch
         // Z = Yaw
+
         return new Vector3(
             NormalizeAngle(roll),
             NormalizeAngle(pitch),
@@ -177,20 +211,79 @@ public class UnrealTransformConverter : EditorWindow
         return angle;
     }
 
-    private static Vector3 RoundVector(Vector3 value, int decimals)
+    private static Vector3 RoundVector(
+        Vector3 value,
+        int decimals
+    )
     {
         return new Vector3(
-            (float)System.Math.Round(value.x, decimals),
-            (float)System.Math.Round(value.y, decimals),
-            (float)System.Math.Round(value.z, decimals)
+            (float)System.Math.Round(
+                value.x,
+                decimals
+            ),
+            (float)System.Math.Round(
+                value.y,
+                decimals
+            ),
+            (float)System.Math.Round(
+                value.z,
+                decimals
+            )
         );
     }
 
-    private static string FormatVector(Vector3 value)
+    private static string FormatUnrealVector(
+        Vector3 value
+    )
     {
         value = RoundVector(value, 3);
 
-        return $"{value.x}, {value.y}, {value.z}";
+        return
+            $"(X={value.x},Y={value.y},Z={value.z})";
+    }
+
+    private static string FormatUnrealRotation(
+        Vector3 value
+    )
+    {
+        value = RoundVector(value, 3);
+
+        // Converted Vector3:
+        // X = Roll
+        // Y = Pitch
+        // Z = Yaw
+
+        return
+            $"(Pitch={value.y},Yaw={value.z},Roll={value.x})";
+    }
+
+    private static string FormatUnrealTransform(
+        Vector3 position,
+        Vector3 rotation,
+        Vector3 scale
+    )
+    {
+        return
+$@"{{
+    ""Tagged"": [
+        [
+            ""RelativeLocation"",
+            ""{FormatUnrealVector(position)}""
+        ],
+        [
+            ""RelativeRotation"",
+            ""{FormatUnrealRotation(rotation)}""
+        ],
+        [
+            ""RelativeScale3D"",
+            ""{FormatUnrealVector(scale)}""
+        ],
+        [
+            ""Mobility"",
+            ""Static""
+        ]
+    ]
+}}";
     }
 
     private void OnSelectionChange()

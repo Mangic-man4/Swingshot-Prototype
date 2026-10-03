@@ -10,7 +10,7 @@
     <ProductVersion>10.0.20506</ProductVersion>
     <SchemaVersion>2.0</SchemaVersion>
     <RootNamespace></RootNamespace>
-    <ProjectGuid>{D083EE54-7957-886A-F13C-29D7CCF93148}</ProjectGuid>
+    <ProjectGuid>{50F0AFF3-8A1E-4A01-9B83-DD704D5AD1FC}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <AssemblyName>Assembly-CSharp</AssemblyName>
@@ -62,9 +62,12 @@
   <ItemGroup>
     <Compile Include="Assets\Store assets\Lava_Flowing_Shader\Scripts\ScrollingUVs_Layers.cs" />
     <Compile Include="Assets\Scripts\EndRestart.cs" />
+    <Compile Include="Assets\Scripts\RunTimerTrigger.cs" />
     <Compile Include="Assets\Scripts\EndMenu.cs" />
+    <Compile Include="Assets\Scripts\MovementMeasurement.cs" />
     <Compile Include="Assets\Store assets\Barrier Pack\Scripts\ContrastStretch.cs" />
     <Compile Include="Assets\Scripts\WaypointFollower.cs" />
+    <Compile Include="Assets\Scripts\PlayerTimer.cs" />
     <Compile Include="Assets\Scripts\Finish.cs" />
     <Compile Include="Assets\Scripts\Swingshot.cs" />
     <Compile Include="Assets\Store assets\Barrier Pack\Scripts\GlobalFog.cs" />
@@ -81,6 +84,7 @@
   <ItemGroup>
     <None Include="Assets\Store assets\Barrels\StandardDoubleSided.shader" />
     <None Include="Assets\Store assets\Barrier Pack\Shaders\GlobalFog.shader" />
+    <None Include="Assets\Unity_AllScriptsBundle.txt" />
     <None Include="Assets\AllScriptsBundle.txt" />
     <None Include="Assets\Store assets\Lava_Flowing_Shader\Shaders\Diffuse_Lava_Distort.shader" />
     <None Include="Assets\Store assets\Barrier Pack\Shaders\Contrast Stretch\Apply.shader" />
